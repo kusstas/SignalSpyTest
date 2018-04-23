@@ -4,8 +4,8 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-
+QT       += core gui testlib
+CONFIG += qt c++11
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = SIgnalSpyTest
