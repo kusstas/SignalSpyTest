@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget* parent) :
 {
     ui->setupUi(this);
 
-    qRegisterMetaType<CustomStruct>("CustomStruct");
+    //qRegisterMetaType<CustomStruct>("CustomStruct");
 
     spyPushButton_ = new QSignalSpy(ui->pushButton, SIGNAL(clicked()));
     spyRadioButton_ = new QSignalSpy(ui->radioButton, SIGNAL(clicked(bool)));
@@ -59,10 +59,16 @@ void MainWindow::on_btnLog_clicked()
         log += "    LineEdit call with arg string - " % arg.first().toString() % QChar::LineSeparator;
     }
 
+
     log += QChar::LineSeparator;
     log += "Custom count calls: " % QString::number(spyCustom_->count()) % QChar::LineSeparator;
     for (auto it = spyCustom_->cbegin(); it != spyCustom_->cend(); ++it) {
         QList<QVariant> arg = *it;
+
+        if (!arg.first().canConvert<CustomStruct>()) {
+            return;
+        }
+
         CustomStruct value = arg.first().value<CustomStruct>();
         log += "    Custom call with arg custom - d: " % QString::number(value.d) % "; e: " %
                QString::number(value.e) % QChar::LineSeparator;
