@@ -11,10 +11,14 @@ MainWindow::MainWindow(QWidget* parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    qRegisterMetaType<CustomStruct>("CustomStruct");
+
     spyPushButton_ = new QSignalSpy(ui->pushButton, SIGNAL(clicked()));
     spyRadioButton_ = new QSignalSpy(ui->radioButton, SIGNAL(clicked(bool)));
     spyLineEdit_ = new QSignalSpy(ui->lineEdit, SIGNAL(textEdited(QString)));
     spySpinBox_ = new QSignalSpy(ui->spinBox, SIGNAL(valueChanged(int)));
+    spyCustom_ = new QSignalSpy(this, SIGNAL(changeValue(CustomStruct)));
 }
 
 MainWindow::~MainWindow()
@@ -23,6 +27,7 @@ MainWindow::~MainWindow()
     delete spyRadioButton_;
     delete spyLineEdit_;
     delete spySpinBox_;
+    delete spyCustom_;
 
     delete ui;
 }
@@ -54,5 +59,22 @@ void MainWindow::on_btnLog_clicked()
         log += "    LineEdit call with arg string - " % arg.first().toString() % QChar::LineSeparator;
     }
 
+    log += QChar::LineSeparator;
+    log += "Custom count calls: " % QString::number(spyCustom_->count()) % QChar::LineSeparator;
+    for (auto it = spyCustom_->cbegin(); it != spyCustom_->cend(); ++it) {
+        QList<QVariant> arg = *it;
+        CustomStruct value = arg.first().value<CustomStruct>();
+        log += "    Custom call with arg custom - d: " % QString::number(value.d) % "; e: " %
+               QString::number(value.e) % QChar::LineSeparator;
+    }
+
     ui->txtLog->setText(log);
+}
+
+void MainWindow::on_spinBox_valueChanged(int value)
+{
+    CustomStruct v;
+    v.d = value / 10;
+    v.e = value % 10;
+    emit changeValue(v);
 }
